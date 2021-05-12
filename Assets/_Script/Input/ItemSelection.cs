@@ -58,5 +58,6 @@ public class ItemSelection : MonoBehaviour
 	{
 		Debug.Log("Use item " + x);
 		itemButtons[x].interactable = false;
+		growGraph.UseItem(x);
 	}
 }

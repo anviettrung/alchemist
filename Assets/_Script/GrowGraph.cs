@@ -5,57 +5,69 @@ using UnityEditor;
 
 public class GrowGraph : MonoBehaviour
 {
-	[System.Serializable]
-	public class GrowTree
+	public List<GrowTree> trees;
+
+	public void UseItem(int x)
 	{
-		public string name;
-		//GrowNode startNode;
-		//public List<GrowNode> nodes = new List<GrowNode>();
+		GrowNode next = FindNextGrowNode(trees[x].activeNode);
+		if (next != null)
+			trees[x].GrowToNode(next);
+
+		bool graphChange = true;
+		int growCount = 0;
+		while (graphChange) {
+			graphChange = false;
+
+			for (int i = 0; i < trees.Count; i++) {
+				if (!trees[i].IsActiveTree) continue;
+
+				GrowNode nextNode = FindNextGrowNode(trees[i].activeNode);
+				if (nextNode != null) {
+					if (nextNode.canGrowContinuously || growCount != 0 || nextNode.growConditions.Count != 0) {
+						graphChange = true;
+						trees[i].GrowToNode(nextNode);
+					}
+				}
+			}
+
+			growCount++;
+		}
 	}
 
-	public List<GrowTree> trees;
+	public GrowNode FindNextGrowNode(GrowNode node)
+	{
+		foreach (GrowNode next in node.childNode) {
+			bool canGrow = true;
+			foreach (GrowCondition condition in next.growConditions) {
+				if (CheckGrowCondition(condition) == false) {
+					canGrow = false;
+					break;
+				}
+			}
+			if (canGrow)
+				return next;
+		}
+
+		return null;
+	}
+
+	public bool CheckGrowCondition(GrowCondition condition)
+	{
+		switch (condition.cmpComp) {
+			case GrowCondition.CompareComponent.LEVEL:
+				switch (condition.cmpType) {
+					case GrowCondition.CompareType.EQUAL:
+						return condition.tree.GetTreeLevel() == condition.cmpValue;
+					case GrowCondition.CompareType.GREATER:
+						return condition.tree.GetTreeLevel() > condition.cmpValue;
+					case GrowCondition.CompareType.SMALLER:
+						return condition.tree.GetTreeLevel() < condition.cmpValue;
+				}
+				break;
+			case GrowCondition.CompareComponent.NODE:
+				return condition.tree.activeNode == condition.cmpNode;
+		}
+
+		return false;
+	}
 }
-
-//#if UNITY_EDITOR
-//[CustomEditor(typeof(GrowGraph))]
-//public class GrowGraphEditor: GenericEditor<GrowGraph>
-//{
-//	int treeIndex;
-//	int fromNodeIndex;
-//	int toNodeIndex;
-
-//	public override void OnInspectorGUI()
-//	{
-//		base.OnInspectorGUI();
-
-//		EditorGUILayout.BeginHorizontal();
-//		treeIndex = EditorGUILayout.IntField(treeIndex);
-//		fromNodeIndex = EditorGUILayout.IntField(fromNodeIndex);
-//		toNodeIndex = EditorGUILayout.IntField(toNodeIndex);
-
-//		EditorGUILayout.EndHorizontal();
-
-//		if (GUILayout.Button("Create Relation")) {
-//			if (0 <= treeIndex && treeIndex < mTarget.trees.Count)
-//				if (0 <= fromNodeIndex && fromNodeIndex < mTarget.trees[treeIndex].nodes.Count
-//				 && 0 <= toNodeIndex && toNodeIndex < mTarget.trees[treeIndex].nodes.Count)
-//					new GrowRelation(
-//						mTarget.trees[treeIndex].nodes[fromNodeIndex],
-//						mTarget.trees[treeIndex].nodes[toNodeIndex]);
-//		}
-
-//		if (GUILayout.Button("Remove Relation")) {
-//			if (0 <= treeIndex && treeIndex < mTarget.trees.Count)
-//				if (0 <= fromNodeIndex && fromNodeIndex < mTarget.trees[treeIndex].nodes.Count
-//				 && 0 <= toNodeIndex && toNodeIndex < mTarget.trees[treeIndex].nodes.Count) {
-//					foreach (GrowRelation re in mTarget.trees[treeIndex].nodes[fromNodeIndex].OutRelations) {
-//						if (re.IsPointTo(mTarget.trees[treeIndex].nodes[toNodeIndex])) {
-//							re.DestroyRelation();
-//							break;
-//						}
-//					}
-//				}
-//		}
-//	}
-//}
-//#endif
