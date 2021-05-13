@@ -56,8 +56,10 @@ public class ItemSelection : MonoBehaviour
 
 	protected void OnClickItem(int x)
 	{
-		Debug.Log("Use item " + x);
-		itemButtons[x].interactable = false;
-		growGraph.UseItem(x);
+		if (growGraph.Growing == false) {
+			Debug.Log("Use item " + x);
+			itemButtons[x].interactable = false;
+			growGraph.UseItem(x);
+		}
 	}
 }

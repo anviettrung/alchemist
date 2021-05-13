@@ -1,17 +1,27 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 
 public class GrowGraph : MonoBehaviour
 {
 	public List<GrowTree> trees;
+	public bool Growing { get;  private set; }
 
 	public void UseItem(int x)
 	{
+		StartCoroutine(IUseItem(x));
+	}
+
+	IEnumerator IUseItem(int x)
+	{
+		Growing = true;
+
 		GrowNode next = FindNextGrowNode(trees[x].activeNode);
-		if (next != null)
+		if (next != null) {
 			trees[x].GrowToNode(next);
+			AssetLibrary.Instance.PlayAppearSFX(next);
+			yield return new WaitForSeconds(next.growDuration);
+		}
 
 		bool graphChange = true;
 		int growCount = 0;
@@ -26,12 +36,18 @@ public class GrowGraph : MonoBehaviour
 					if (nextNode.canGrowContinuously || growCount != 0 || nextNode.growConditions.Count != 0) {
 						graphChange = true;
 						trees[i].GrowToNode(nextNode);
+						AssetLibrary.Instance.PlayGrowSFX(nextNode);
+						yield return new WaitForSeconds(nextNode.growDuration);
 					}
 				}
 			}
 
 			growCount++;
 		}
+
+		yield return 0;
+
+		Growing = false;
 	}
 
 	public GrowNode FindNextGrowNode(GrowNode node)

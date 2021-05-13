@@ -7,15 +7,27 @@ using UnityEditor;
 public class GrowNode : MonoBehaviour
 {
 	[ReadOnly] public GrowNode parentNode = null;
+	[ReadOnly] public List<GrowNode> childNode = new List<GrowNode>();
+
+	[Header("Transition")]
 	public bool canGrowContinuously = false;
 	public List<GrowCondition> growConditions = new List<GrowCondition>();
+
+	[Header("Growth")]
+	public float growDuration = 0;
 	public UnityEvent onGrow = new UnityEvent();
 
-	[ReadOnly] public List<GrowNode> childNode = new List<GrowNode>();
+	[Header("SFX")]
+	public bool playAppearSFX = true;
+	public bool playGrowSFX = true;
+	[HideInInspector] public AudioSource nodeAudioSource;
+	
 
 	private void Awake()
 	{
 		SetNodeRelation();
+		nodeAudioSource = gameObject.AddComponent<AudioSource>();
+		nodeAudioSource.playOnAwake = false;
 	}
 
 	protected void SetNodeRelation()
