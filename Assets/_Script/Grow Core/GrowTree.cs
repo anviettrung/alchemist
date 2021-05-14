@@ -8,7 +8,7 @@ public class GrowTree : MonoBehaviour
 	[ReadOnly] public GrowNode root;
 	[ReadOnly] public GrowNode activeNode;
 
-	public bool IsActiveTree => activeNode != root; 
+	public bool IsActiveTree => activeNode != root;
 
 	public int GetTreeLevel()
 	{
@@ -32,6 +32,10 @@ public class GrowTree : MonoBehaviour
 	public void GrowToNode(GrowNode node)
 	{
 		activeNode = node;
+
+		AssetLibrary.Instance.PlaySFX(activeNode);
+		if (activeNode.growSFX == GrowSFX.GROW)
+			FloatTextManager.Instance.PopupLevelUpText(activeNode.defaultLevelUpTextAnchor.position); 
 		activeNode.onGrow.Invoke();
 	}
 }

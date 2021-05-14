@@ -19,7 +19,6 @@ public class GrowGraph : MonoBehaviour
 		GrowNode next = FindNextGrowNode(trees[x].activeNode);
 		if (next != null) {
 			trees[x].GrowToNode(next);
-			AssetLibrary.Instance.PlayAppearSFX(next);
 			yield return new WaitForSeconds(next.growDuration);
 		}
 
@@ -36,7 +35,6 @@ public class GrowGraph : MonoBehaviour
 					if (nextNode.canGrowContinuously || growCount != 0 || nextNode.growConditions.Count != 0) {
 						graphChange = true;
 						trees[i].GrowToNode(nextNode);
-						AssetLibrary.Instance.PlayGrowSFX(nextNode);
 						yield return new WaitForSeconds(nextNode.growDuration);
 					}
 				}

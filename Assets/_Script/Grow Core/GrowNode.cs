@@ -4,6 +4,12 @@ using UnityEngine.Events;
 using UnityEngine;
 using UnityEditor;
 
+public enum GrowSFX {
+	GROW,
+	APPEAR,
+	NONE
+}
+
 public class GrowNode : MonoBehaviour
 {
 	[ReadOnly] public GrowNode parentNode = null;
@@ -15,11 +21,11 @@ public class GrowNode : MonoBehaviour
 
 	[Header("Growth")]
 	public float growDuration = 0;
+	public Transform defaultLevelUpTextAnchor;
 	public UnityEvent onGrow = new UnityEvent();
 
 	[Header("SFX")]
-	public bool playAppearSFX = true;
-	public bool playGrowSFX = true;
+	public GrowSFX growSFX;
 	[HideInInspector] public AudioSource nodeAudioSource;
 	
 
@@ -28,21 +34,32 @@ public class GrowNode : MonoBehaviour
 		SetNodeRelation();
 		nodeAudioSource = gameObject.AddComponent<AudioSource>();
 		nodeAudioSource.playOnAwake = false;
+
+		if (defaultLevelUpTextAnchor == null)
+			defaultLevelUpTextAnchor = this.transform;
 	}
 
 	protected void SetNodeRelation()
 	{
-		if (parentNode != null) {
-			if (parentNode.transform != transform.parent) {
-				// Remove old parent settings
-				parentNode.childNode.Remove(this);
-			}
-		}
+		//if (parentNode != null) {
+		//	if (parentNode.transform != transform.parent) {
+		//		// Remove old parent settings
+		//		parentNode.childNode.Remove(this);
+		//	}
+		//}
 
-		parentNode = transform.parent.GetComponent<GrowNode>();
-		if (parentNode != null) {
-			// Init
-			parentNode.childNode.Add(this);
+		//parentNode = transform.parent.GetComponent<GrowNode>();
+		//if (parentNode != null) {
+		//	// Init
+		//	parentNode.childNode.Add(this);
+		//}
+
+		for (int i = 0; i < transform.childCount; i++) {
+			GrowNode node = transform.GetChild(i).GetComponent<GrowNode>();
+			if (node != null) {
+				node.parentNode = this;
+				childNode.Add(node);
+			}
 		}
 	}
 

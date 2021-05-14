@@ -8,27 +8,23 @@ public class AssetLibrary : SingletonScriptableObject<AssetLibrary>
 	public AudioClip appearSFX;
 	public AudioClip growSFX;
 
-	public void PlayAppearSFX(GrowNode node)
+	public void PlaySFX(GrowNode node)
 	{
-		if (node.playAppearSFX)
-			PlayAppearSFX(node.nodeAudioSource);
+		switch (node.growSFX) {
+			case GrowSFX.GROW:
+				PlaySFX(node.nodeAudioSource, growSFX);
+				break;
+			case GrowSFX.APPEAR:
+				PlaySFX(node.nodeAudioSource, appearSFX);
+				break;
+			case GrowSFX.NONE:
+				return;
+		}
 	}
 
-	public void PlayAppearSFX(AudioSource source)
+	public void PlaySFX(AudioSource source, AudioClip clip)
 	{
-		source.clip = appearSFX;
-		source.Play();
-	}
-
-	public void PlayGrowSFX(GrowNode node)
-	{
-		if (node.playGrowSFX)
-			PlayGrowSFX(node.nodeAudioSource);
-	}
-
-	public void PlayGrowSFX(AudioSource source)
-	{
-		source.clip = growSFX;
+		source.clip = clip;
 		source.Play();
 	}
 }
